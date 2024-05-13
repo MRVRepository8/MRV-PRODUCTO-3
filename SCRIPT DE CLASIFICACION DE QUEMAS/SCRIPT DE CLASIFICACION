@@ -1,0 +1,162 @@
+///////
+// EL SIGUIENTE SCRIPT ES EL MODELO UTILIZADO PARA LA CLASIFICACIÓN DE QUEMAS 
+
+// clasificacion de quemas MRV-Bolivia v.1
+// Fecha: 08/03/2024
+var id_region = 21002
+var carpeta = 'mosaicos-quemas-m-v2'
+var carpeta2 = 'mosaicos-quemas2m'
+// Mes a clasificar
+var mes = 01
+//var mesL = 'mar'
+var mesN = '01'
+
+// fechas de referencia (area de quema y punto de quema)
+var x1 = '2023-08-01' //periodo inicial, debe ser dos meses antes del mes de interes
+var x2 =    '2023-12-31' //periodo final, debe ser dos meses despues del mes de interes
+// llenar solo hasta aqui
+
+var regionR = ee.FeatureCollection("projects/mvr-bolivia/assets/Regiones_Clasificacion_Bol_wgs84_Corregido_buff_1km")
+              .filter(ee.Filter.eq('id_regionC',id_region))
+              
+var nov22 = ee.Image('projects/'+carpeta+'/assets/'+id_region+'/id_'+id_region+'_11_2022');
+var dic22 = ee.Image('projects/'+carpeta+'/assets/'+id_region+'/id_'+id_region+'_12_2022');
+var ene =   ee.Image('projects/'+carpeta+'/assets/'+id_region+'/id_'+id_region+'_01_2023');
+var feb =   ee.Image('projects/'+carpeta+'/assets/'+id_region+'/id_'+id_region+'_02_2023');
+var mar =   ee.Image('projects/'+carpeta+'/assets/'+id_region+'/id_'+id_region+'_03_2023');
+var abr =   ee.Image('projects/'+carpeta+'/assets/'+id_region+'/id_'+id_region+'_04_2023');
+var may =   ee.Image('projects/'+carpeta+'/assets/'+id_region+'/id_'+id_region+'_05_2023');
+var jun =   ee.Image('projects/'+carpeta+'/assets/'+id_region+'/id_'+id_region+'_06_2023');
+var jul =   ee.Image('projects/'+carpeta+'/assets/'+id_region+'/id_'+id_region+'_07_2023');
+var ago =   ee.Image('projects/'+carpeta+'/assets/'+id_region+'/id_'+id_region+'_08_2023');
+var sep =   ee.Image('projects/'+carpeta+'/assets/'+id_region+'/id_'+id_region+'_09_2023');
+var oct =   ee.Image('projects/'+carpeta+'/assets/'+id_region+'/id_'+id_region+'_10_2023');
+var nov =   ee.Image('projects/'+carpeta+'/assets/'+id_region+'/id_'+id_region+'_11_2023');
+var dic =   ee.Image('projects/'+carpeta+'/assets/'+id_region+'/id_'+id_region+'_12_2023');
+// vis recommended by erikota chuvieco
+Map.addLayer(nov22, {bands: ['B12', 'B8', 'B4'], min: [0, 1000, 0], max: [3000, 4000, 3000]}, 'noviembre 22', false);
+Map.addLayer(dic22, {bands: ['B12', 'B8', 'B4'], min: [0, 1000, 0], max: [3000, 4000, 3000]}, 'diciembre 22', false);
+Map.addLayer(ene, {bands: ['B12', 'B8', 'B4'], min: [0, 1000, 0], max: [3000, 4000, 3000]}, 'enero', false);
+Map.addLayer(feb, {bands: ['B12', 'B8', 'B4'], min: [0, 1000, 0], max: [3000, 4000, 3000]}, 'febrero', false);
+Map.addLayer(mar, {bands: ['B12', 'B8', 'B4'], min: [0, 1000, 0], max: [3000, 4000, 3000]}, 'marzo', false);
+Map.addLayer(abr, {bands: ['B12', 'B8', 'B4'], min: [0, 1000, 0], max: [3000, 4000, 3000]}, 'abril', false);
+Map.addLayer(may, {bands: ['B12', 'B8', 'B4'], min: [0, 1000, 0], max: [3000, 4000, 3000]}, 'mayo', false);
+Map.addLayer(jun, {bands: ['B12', 'B8', 'B4'], min: [0, 1000, 0], max: [3000, 4000, 3000]}, 'junio', false);
+Map.addLayer(jul, {bands: ['B12', 'B8', 'B4'], min: [0, 1000, 0], max: [3000, 4000, 3000]}, 'julio', false);
+Map.addLayer(ago, {bands: ['B12', 'B8', 'B4'], min: [0, 1000, 0], max: [3000, 4000, 3000]}, 'agosto', false);
+Map.addLayer(sep, {bands: ['B12', 'B8', 'B4'], min: [0, 1000, 0], max: [3000, 4000, 3000]}, 'septiembre', false);
+Map.addLayer(oct, {bands: ['B12', 'B8', 'B4'], min: [0, 1000, 0], max: [3000, 4000, 3000]}, 'octubre', false);
+Map.addLayer(nov, {bands: ['B12', 'B8', 'B4'], min: [0, 1000, 0], max: [3000, 4000, 3000]}, 'noviembre', false);
+Map.addLayer(dic, {bands: ['B12', 'B8', 'B4'], min: [0, 1000, 0], max: [3000, 4000, 3000]}, 'diciembre', false);
+
+// other adjust
+Map.addLayer(dic22,{bands: ['B12', 'B8', 'B4'], min: 0, max: 4000}, 'Diciembre 22',false);
+Map.addLayer(ene,{bands: ['B12', 'B8', 'B4'], min: 0, max: 4000}, 'Enero',false);
+Map.addLayer(feb,{bands: ['B12', 'B8', 'B4'], min: 0, max: 4000}, 'Febrero',false);
+Map.addLayer(mar,{bands: ['B12', 'B8', 'B4'], min: 0, max: 4000}, 'Marzo',false);
+Map.addLayer(abr,{bands: ['B12', 'B8', 'B4'], min: 0, max: 4000}, 'Abril',false);
+Map.addLayer(may,{bands: ['B12', 'B8', 'B4'], min: 0, max: 4000}, 'Mayo',false);
+Map.addLayer(jun,{bands: ['B12', 'B8', 'B4'], min: 0, max: 4000}, 'Junio',false);
+Map.addLayer(jul,{bands: ['B12', 'B8', 'B4'], min: 0, max: 4000}, 'Julio',false);
+Map.addLayer(ago,{bands: ['B12', 'B8', 'B4'], min: 0, max: 4000}, 'Agosto',false);
+Map.addLayer(sep,{bands: ['B12', 'B8', 'B4'], min: 0, max: 4000}, 'Septiembre',false);
+Map.addLayer(oct,{bands: ['B12', 'B8', 'B4'], min: 0, max: 4000}, 'Octubre',false);
+Map.addLayer(nov,{bands: ['B12', 'B8', 'B4'], min: 0, max: 4000}, 'Noviembre',false);
+Map.addLayer(dic,{bands: ['B12', 'B8', 'B4'], min: 0, max: 4000}, 'Diciembre',false);
+
+
+
+var imageI = ee.Image('projects/'+carpeta+'/assets/'+id_region+'/id_'+id_region+'_'+mesN+'_2023');
+var imageC = ee.Image('projects/'+carpeta2+'/assets/'+id_region+'_2/region_'+id_region+'_t'+mes);// image for classification
+//Carga de puntos de entrenamiento. La propiedad numérica 'clase'
+var merge = quema.merge(no_quema);
+var points = ee.FeatureCollection(merge)
+// for classification
+var training = imageC.sampleRegions(points, ['class'], 10);//cambiar image(6) al mes a clasificar (5),(7)
+// Entrena un clasificador Random Forest.
+var classifier = ee.Classifier.smileRandomForest({
+    'numberOfTrees': 150, // se puede ajustar hasta 300
+});
+// Training the classifier
+classifier = classifier.train({
+    'features': training,
+    'classProperty': 'class',
+    'inputProperties': [
+        "B2",
+        "B3",
+        "B4",
+        "B6",
+        "B8",
+        "B8A",
+        "B11",
+        "B12",
+        "NBR",
+        "NBR_two",
+        "NDVI",
+        "NBRPLUS",
+        "NDWI",
+        "RdNBR"
+    ]
+});
+
+var classification = imageC.classify(classifier); //cambiar image(6) al mes a clasificar (5),(7)
+
+
+// just for ndvi
+var palette = ['FFFFFF', 'CE7E45', 'DF923D', 'F1B555', 'FCD163', '99B718',
+  '74A901', '66A000', '529400', '3E8601', '207401', '056201',
+  '004C00', '023B01', '012E01', '011D01', '011301']
+var ndviVis = {bands: ["NDVI"],min:151, max:7418, palette: palette, opacity: 1}
+
+// see index of month 
+Map.addLayer(imageI, ndviVis, 'NDVI-mes-'+mes, false)
+Map.addLayer(imageI,vis_nbr,'NBR del Mes',false)
+Map.addLayer(imageI,vis_ndwi,'NDWI del Mes',false)
+Map.addLayer(imageC,vis_quema,'Quema de REFERENCIA 2 (mes)',false)
+
+
+
+// intro focos de calor
+var fireCollection = ee.ImageCollection('FIRMS').filter(
+    ee.Filter.date(x1, x2));
+    
+var fires_C = fireCollection.select('confidence');
+var firesVis = {
+  min: 0.0,
+  max: 100.0,
+  palette: ['d6a4d5', 'd683cd', 'd400ff'],
+};
+
+// intro burn mapclasificacion-mes
+
+var dataset = ee.ImageCollection('MODIS/061/MCD64A1')
+                  .filter(ee.Filter.date(x1, x2));
+var burnedArea = dataset.select('BurnDate');
+var burnedAreaVis = {
+  min: 0.0,
+  max: 365.0,
+  palette: ['b8ff00', 'ffff00', 'f06b00', 'ff0000'],
+};
+
+Map.addLayer(burnedArea, burnedAreaVis, 'Quema de REFERENCIA 1 (meses)',false);
+Map.addLayer(fires_C,firesVis, 'Focos de Calor',false);
+//Muestra las entradas y los resultados.
+
+Map.addLayer(classification, {min: 1, max: 2, palette: ['red', 'green']},
+  'Clasificacion-mes-'+mes, true);
+
+// Definir la región de interés para exportar (utilizando la región seleccionada previamente)
+var regionExport = regionR.geometry();
+
+// Definir los parámetros de exportación
+var exportOptions = {
+  image: classification.toFloat(), // Convertir la clasificación a tipo float
+  description: 'Clasificacion-mes-' + mesN, // Descripción del asset exportado
+  assetId: 'QUEMAS_REGIONES/Clasificacion-mes-' + mesN + - + id_region, // Cambia "tu_usuario" por tu nombre de usuario de Earth Engine
+  region: regionExport, // Región de interés
+  scale: 20, // Resolución espacial en metros
+  maxPixels: 1e13 // Máximo número de píxeles permitidos
+};
+
+// Exportar la clasificación como asset
+Export.image.toAsset(exportOptions);
